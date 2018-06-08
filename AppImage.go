@@ -36,7 +36,6 @@ type AppImage struct {
 //Free manually frees memory alocated to AppImage's C variables.
 func (a *AppImage) Free() {
 	C.free(unsafe.Pointer(a.clocation))
-	C.free(unsafe.Pointer(a.cdesktopFileLocation))
 	C.appimage_string_list_free(a.cinternalFiles)
 }
 
