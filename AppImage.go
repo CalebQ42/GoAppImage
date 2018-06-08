@@ -24,6 +24,7 @@ import (
 //AppImage is the representation of an AppImage. You must call Free() once your done to manually free up the C variables.
 //It's recommended to defer Free() immediately after declaring so you don't forget.
 type AppImage struct {
+	//InternalFiles is a slice containing the names of ALL the AppImage's files. Backed by a C array.
 	InternalFiles        []string
 	location             string
 	clocation            *C.char
