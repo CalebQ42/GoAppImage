@@ -42,7 +42,7 @@ func (a *AppImage) Free() {
 //NewAppImage creates a new AppImage tied to location.
 func NewAppImage(location string) AppImage {
 	if strings.HasSuffix(location, ".AppImage") {
-		fmt.Println("The given location does not appear to be a an AppImage, this may cause issues with several functions")
+		fmt.Println("The given location does not appear to be a an AppImage, this may cause issues with many things")
 	}
 	var out AppImage
 	out.location = location
