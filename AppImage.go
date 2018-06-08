@@ -26,9 +26,9 @@ import (
 type AppImage struct {
 	//InternalFiles is a slice containing the names of ALL the AppImage's files. Backed by a C array.
 	InternalFiles        []string
+	cinternalFiles       **C.char
 	location             string
 	clocation            *C.char
-	cinternalFiles       **C.char
 	desktopFileLocation  string
 	cdesktopFileLocation *C.char
 }
@@ -42,7 +42,7 @@ func (a *AppImage) Free() {
 
 //NewAppImage creates a new AppImage tied to location.
 func NewAppImage(location string) AppImage {
-	if strings.HasSuffix(location, ".AppImage") {
+	if !strings.HasSuffix(location, ".AppImage") {
 		fmt.Println("The given location does not appear to be a an AppImage, this may cause issues with many things")
 	}
 	var out AppImage
