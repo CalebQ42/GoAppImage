@@ -39,7 +39,7 @@ func (a *AppImage) Free() {
 	C.appimage_string_list_free(a.cinternalFiles)
 }
 
-//NewAppImage creates a new AppImage tied to location.
+//NewAppImage creates a new AppImage tied to location. Takes a while
 func NewAppImage(location string) AppImage {
 	if !strings.HasSuffix(location, ".AppImage") {
 		fmt.Println("The given location does not appear to be a an AppImage, this may cause issues with many things")
