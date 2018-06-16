@@ -1,8 +1,8 @@
 package goappimage
 
 /*
-#cgo CFLAGS: -I/usr/lib
-#cgo LDFLAGS: -L/usr/lib/libappimage.so -lappimage
+#cgo CFLAGS: -I${SRCDIR}/AppImageKit/
+#cgo LDFLAGS: -L${SRCDIR}/AppImageKit -lappimage
 
 #include <appimage/appimage.h>
 #include <stdlib.h>
@@ -31,15 +31,23 @@ type AppImage struct {
 	clocation            *C.char
 	desktopFileLocation  string
 	cdesktopFileLocation *C.char
+	cmd5                 *C.char
+	initialized          bool
+	md5ed                bool
 }
 
 //Free manually frees memory alocated to AppImage's C variables.
 func (a *AppImage) Free() {
 	C.free(unsafe.Pointer(a.clocation))
-	C.appimage_string_list_free(a.cinternalFiles)
+	if a.initialized {
+		C.appimage_string_list_free(a.cinternalFiles)
+	}
+	if a.md5ed {
+		C.free(unsafe.Pointer(a.cmd5))
+	}
 }
 
-//NewAppImage creates a new AppImage tied to location. Takes a while
+//NewAppImage creates a new AppImage tied to location.
 func NewAppImage(location string) AppImage {
 	if !strings.HasSuffix(location, ".AppImage") {
 		fmt.Println("The given location does not appear to be a an AppImage, this may cause issues with many things")
@@ -47,19 +55,31 @@ func NewAppImage(location string) AppImage {
 	var out AppImage
 	out.location = location
 	out.clocation = C.CString(out.location)
-	out.cinternalFiles = C.appimage_list_files(out.clocation)
-	cfilesLength := C.char_length(out.cinternalFiles)
-	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(out.cinternalFiles))[:cfilesLength:cfilesLength]
-	out.InternalFiles = make([]string, cfilesLength)
+	return out
+}
+
+//Initialize is a long process that allows some AppImage functions to work. Takes a long time.
+func (a *AppImage) Initialize() {
+	a.cinternalFiles = C.appimage_list_files(a.clocation)
+	cfilesLength := C.char_length(a.cinternalFiles)
+	tmpslice := (*[1 << 30]*C.char)(unsafe.Pointer(a.cinternalFiles))[:cfilesLength:cfilesLength]
+	a.InternalFiles = make([]string, cfilesLength)
 	for i, v := range tmpslice {
 		tmp := C.GoString(v)
-		out.InternalFiles[i] = tmp
+		a.InternalFiles[i] = tmp
 		if strings.HasSuffix(tmp, ".desktop") {
-			out.desktopFileLocation = tmp
-			out.cdesktopFileLocation = v
+			a.desktopFileLocation = tmp
+			a.cdesktopFileLocation = v
 		}
 	}
-	return out
+	a.initialized = true
+}
+
+//Md5 returns the md5 hash of the appimage
+func (a *AppImage) Md5() string {
+	a.cmd5 = C.appimage_get_md5(a.clocation)
+	a.md5ed = true
+	return C.GoString(a.cmd5)
 }
 
 //ExtractFile extracts the file at location to extractLocation. File should be found in AppImage.InternalFiles.
@@ -71,9 +91,13 @@ func (a *AppImage) ExtractFile(location, extractLocation string) {
 	C.appimage_extract_file_following_symlinks(a.clocation, cloc, cextract)
 }
 
-//ExtractDesktop extracts the desktop file to extractLocation.
+//ExtractDesktop extracts the desktop file to extractLocation. Requires initialization.
 func (a *AppImage) ExtractDesktop(extractLocation string) {
-	cextract := C.CString(extractLocation)
-	defer C.free(unsafe.Pointer(cextract))
-	C.appimage_extract_file_following_symlinks(a.clocation, a.cdesktopFileLocation, cextract)
+	if a.initialized {
+		cextract := C.CString(extractLocation)
+		defer C.free(unsafe.Pointer(cextract))
+		C.appimage_extract_file_following_symlinks(a.clocation, a.cdesktopFileLocation, cextract)
+	} else {
+		fmt.Println("AppImage needs to be initialized before this works")
+	}
 }
