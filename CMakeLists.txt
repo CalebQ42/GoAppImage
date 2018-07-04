@@ -18,6 +18,8 @@ endif()
 
 set(GOCMD go build ${GOFLAGS} ${CMAKE_PROJECT_NAME})
 
+target_link_libraries(GoAppImage PRIVATE libappimage_static inotify-tools xdg-basedir dl)
+
 add_custom_target( goinstall ALL
   ${GOCMD}
   COMMENT "Running ${GOCMDPP}"
