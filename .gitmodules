@@ -1,0 +1,3 @@
+[submodule "AppImageKit"]
+	path = AppImageKit
+	url = https://github.com/AppImage/AppImageKit
