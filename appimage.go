@@ -101,7 +101,7 @@ func NewAppImage(path string) AppImage {
 // Maybe we should consider to have a fixed directory inside the AppDir
 // for everything that should be extracted, or a MANIFEST file. That would save
 // us this slow work at runtime
-func (ai AppImage) discoverContents(verbose bool) {
+func (ai AppImage) DiscoverContents(verbose bool) {
 	// Let's get the listing of files inside the AppImage. We can work on this later on
 	// to resolve symlinks, and to determine which files to extract in addition to the desktop file and icon
 	cmd := exec.Command("")
