@@ -1,6 +1,8 @@
 package goappimage
 
 /*
+#cgo CFLAGS: -I${SRCDIR}/include
+#cgo LDFLAGS: -L${SRCDIR}/libappimage -lappimage
 #include <appimage/appimage.h>
 #include <stdlib.h>
 
