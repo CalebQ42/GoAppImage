@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/hex"
-	"io"
 	"io/ioutil"
 	"net/url"
 
@@ -23,6 +22,7 @@ import (
 	"github.com/adrg/xdg"
 	"go.lsp.dev/uri"
 )
+import "io"
 
 // AppImage handles AppImage files.
 // Currently it is using using a static build of mksquashfs/unsquashfs
@@ -115,8 +115,8 @@ func (ai AppImage) DiscoverContents(verbose bool) {
 	}
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	err := cmd.Run()
-	helpers.LogError("appimage: list files:", err)
+	// err := cmd.Run()
+	cmd.Run()
 	ai.RawContents = out.String()
 }
 
@@ -192,41 +192,41 @@ func (ai AppImage) determineImageType() int {
 	return -1
 }
 
-func (ai AppImage) setExecBit(verbose bool) {
+// func (ai AppImage) setExecBit(verbose bool) {
 
-	err := os.Chmod(ai.Path, 0755)
-	if err == nil {
-		if verbose == true {
-			log.Println("appimage: Set executable bit on", ai.Path)
-		}
-	}
-	// printError("appimage", err) // Do not print error since AppImages on read-only media are common
-}
+// 	err := os.Chmod(ai.Path, 0755)
+// 	if err == nil {
+// 		if verbose == true {
+// 			log.Println("appimage: Set executable bit on", ai.Path)
+// 		}
+// 	}
+// 	// printError("appimage", err) // Do not print error since AppImages on read-only media are common
+// }
 
 // Validate checks the quality of an AppImage and sends desktop notification, returns error or nil
 // TODO: Add more checks and reuse this in appimagetool
-func (ai AppImage) Validate(verbose bool) error {
-	if verbose == true {
-		log.Println("Validating AppImage", ai.Path)
-	}
-	// Check validity of the updateinformation in this AppImage, if it contains some
-	if ai.UpdateInformation != "" {
-		log.Println("Validating updateinformation in", ai.Path)
-		err := helpers.ValidateUpdateInformation(ai.UpdateInformation)
-		if err != nil {
-			helpers.PrintError("appimage: updateinformation verification", err)
-			return err
-		}
-	}
-	return nil
-}
+// func (ai AppImage) Validate(verbose bool) error {
+// 	if verbose == true {
+// 		log.Println("Validating AppImage", ai.Path)
+// 	}
+// 	// Check validity of the updateinformation in this AppImage, if it contains some
+// 	if ai.UpdateInformation != "" {
+// 		log.Println("Validating updateinformation in", ai.Path)
+// 		err := helpers.ValidateUpdateInformation(ai.UpdateInformation)
+// 		if err != nil {
+// 			helpers.PrintError("appimage: updateinformation verification", err)
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
-func ioReader(file string) io.ReaderAt {
-	r, err := os.Open(file)
-	defer r.Close()
-	helpers.LogError("appimage: elf:", err)
-	return r
-}
+// func ioReader(file string) io.ReaderAt {
+// 	r, err := os.Open(file)
+// 	defer r.Close()
+// 	helpers.LogError("appimage: elf:", err)
+// 	return r
+// }
 
 // ExtractFile extracts a file from from filepath (which may contain * wildcards)
 // in an AppImage to the destinationdirpath.
