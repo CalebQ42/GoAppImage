@@ -95,7 +95,7 @@ func NewAppImage(path string) AppImage {
 	return ai
 }
 
-// Fills rawcontents with the raw output of our extraction tools,
+// DiscoverContents Fills rawcontents with the raw output of our extraction tools,
 // libarchive and unsquashfs. This is a slow operation and should hence only be done
 // once we are sure that we really need this information.
 // Maybe we should consider to have a fixed directory inside the AppDir
